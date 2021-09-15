@@ -1,4 +1,31 @@
+FROM ubuntu:latest AS build
+
+ARG BRANCH="latest"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN chmod 1777 /tmp && \
+    apt-get update -q && \
+    apt-get upgrade -qy && \
+    apt-get install -qy --no-install-recommends \
+      bc \
+      ca-certificates \
+      gcc \
+      git \
+      lsb-release \
+      make \
+      sudo \
+      tzdata \
+      wget && \
+    git clone -b ${BRANCH} \
+        https://github.com/Chia-Network/chia-blockchain.git && \
+    cd /chia-blockchain && \
+    git submodule update --init mozilla-ca && \
+    /bin/bash install.sh
+
 FROM ubuntu:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 EXPOSE 8555
 EXPOSE 8444
@@ -14,18 +41,17 @@ ENV testnet="false"
 ENV upnp="true"
 ENV log_level="WARNING"
 ENV TZ="UTC"
-ARG BRANCH
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl jq python3 ansible tar bash ca-certificates git openssl unzip wget python3-pip sudo acl build-essential python3-dev python3.8-venv python3.8-distutils apt nfs-common python-is-python3 vim tzdata
+COPY --from=build /chia-blockchain /chia-blockchain
 
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN dpkg-reconfigure -f noninteractive tzdata
+RUN chmod 1777 /tmp && \
+    apt-get update -q && \
+    apt-get upgrade -qy && \
+    apt-get install -qy --no-install-recommends \
+      python3.8-venv \
+      tzdata && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN echo "cloning ${BRANCH}"
-RUN git clone --branch ${BRANCH} https://github.com/Chia-Network/chia-blockchain.git \
-&& cd chia-blockchain \
-&& git submodule update --init mozilla-ca \
-&& /usr/bin/sh ./install.sh
 
 ENV PATH=/chia-blockchain/venv/bin/:$PATH
 WORKDIR /chia-blockchain
