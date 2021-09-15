@@ -40,6 +40,11 @@ done
 
 sed -i 's/localhost/127.0.0.1/g' "$CHIA_ROOT/config/config.yaml"
 
+if [[ -n ${upnp} ]]; then
+  echo "Setting upnp to ${unpn}"
+  chia configure --upnp ${unpn}
+fi
+
 if [[ ${farmer} == 'true' ]]; then
   chia start farmer-only
 elif [[ ${harvester} == 'true' ]]; then
