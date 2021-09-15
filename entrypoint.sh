@@ -40,6 +40,16 @@ done
 
 sed -i 's/localhost/127.0.0.1/g' "$CHIA_ROOT/config/config.yaml"
 
+if [[ -n ${log_level} ]]; then
+  echo "Setting log level to ${log_level}"
+  chia configure --set-log-level ${log_level}
+fi
+
+if [[ -n ${upnp} ]]; then
+  echo "Setting upnp to ${unpn}"
+  chia configure --upnp ${unpn}
+fi
+
 if [[ ${farmer} == 'true' ]]; then
   chia start farmer-only
 elif [[ ${harvester} == 'true' ]]; then
