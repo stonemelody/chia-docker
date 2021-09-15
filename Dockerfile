@@ -12,6 +12,7 @@ ENV farmer_address="null"
 ENV farmer_port="null"
 ENV testnet="false"
 ENV upnp="true"
+ENV log_level="WARNING"
 ENV TZ="UTC"
 ARG BRANCH
 
